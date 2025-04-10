@@ -1,4 +1,4 @@
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 
 def generar_resumen(contenido, config):
@@ -10,9 +10,13 @@ def generar_resumen(contenido, config):
             openai_api_key=config["openai_api_key"]
         )
         
-        prompt = f"Por favor, genera un resumen conciso (150-200 palabras) del siguiente contenido, manteniendo los puntos clave:\n\n{contenido}"
+        prompt = (
+            f"Por favor, genera un resumen conciso (150-200 palabras) del siguiente contenido, "
+            f"manteniendo los puntos clave:\n\n{contenido}"
+        )
         
-        respuesta = llm([HumanMessage(content=prompt)])
+        # Usamos invoke para evitar la deprecación
+        respuesta = llm.invoke([HumanMessage(content=prompt)])
         return respuesta.content
     except Exception as e:
         print(f"Error al generar resumen: {e}")

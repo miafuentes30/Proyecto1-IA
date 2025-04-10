@@ -23,7 +23,7 @@ pandas
 tabulate
 snscrape~=0.7.0.20230622
 matplotlib==3.7.2
-wordcloud==1.9.2
-tavily-python==0.0.1
+wordcloud
+tavily-python
 
 # Sino funca: pip install matplotlib wordcloud langchain openai python-dotenv requests streamlit tavily-python
