@@ -1,0 +1,29 @@
+# pip install -r requirements.txt
+langchain==0.3.6
+langchain-experimental==0.3.2
+langchainhub
+langchain-community
+langchain-text-splitters
+langchain-openai~=0.3.7
+langsmith
+langchain-core~=0.3.41
+langgraph
+langchain-pinecone
+requests~=2.32.3
+black
+openai
+python-dotenv~=1.0.1
+pinecone-client
+beautifulsoup4
+altair<5
+firecrawl-py
+qrcode
+streamlit
+pandas
+tabulate
+snscrape~=0.7.0.20230622
+matplotlib==3.7.2
+wordcloud==1.9.2
+tavily-python==0.0.1
+
+# Sino funca: pip install matplotlib wordcloud langchain openai python-dotenv requests streamlit tavily-python
