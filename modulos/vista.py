@@ -38,12 +38,9 @@ def mostrar_resultados(resultados, config=None):
             titulo = resultado.get('title', f"Resultado {i}")
             url = resultado.get('url', '#')
             contenido = resultado.get('content', 'No hay contenido disponible.')
-            contenido_truncado = contenido[:500] + "..." if len(contenido) > 500 else contenido
 
-            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
             st.markdown(f"### <a href='{url}' target='_blank'>{titulo}</a>", unsafe_allow_html=True)
-            st.markdown(f"<p>{contenido_truncado}</p>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(f"<p>{contenido}</p>", unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error al mostrar resultado {i}: {e}")
 

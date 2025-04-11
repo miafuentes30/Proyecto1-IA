@@ -22,7 +22,7 @@ def cargar_configuracion():
         "openai_api_key": openai_api_key,
         "tavily_api_key": tavily_api_key,
         "model_name": "gpt-4o-mini",      # ajustado a gpt-4o-mini
-        "max_tokens": 2000,
+        "max_tokens": 8096,
         "temperature": 0.7
     }
 
@@ -35,7 +35,7 @@ def cargar_configuracion():
     )
 
     # 2. Inicializa la herramienta de búsqueda Tavily
-    tavily_tool = TavilySearchResults(api_key=tavily_api_key)
+    tavily_tool = TavilySearchResults(api_key=tavily_api_key, k=5)
     tools = [tavily_tool]
 
     # 3. Obtiene el prompt ReAct desde LangChain Hub
@@ -45,7 +45,7 @@ def cargar_configuracion():
     agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
 
     # 5. Crea el ejecutor del agente
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False, handle_parsing_errors=True)
 
     # 6. Añade el ejecutor del agente al config
     config["langchain_agent"] = agent_executor

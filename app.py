@@ -1,8 +1,15 @@
+import json
 import streamlit as st
 from modulos.config import cargar_configuracion
 from modulos.procesamiento import generar_resumen
 from modulos.vista import mostrar_resultados, generar_nube_palabras
 import time
+
+import re
+
+# Limpia etiquetas Markdown como ```json ... ```
+def limpiar_bloque_json(texto):
+    return re.sub(r"^```(?:json)?\s*|\s*```$", "", texto.strip(), flags=re.IGNORECASE)
 
 # Configuración de la página
 st.set_page_config(
@@ -57,32 +64,43 @@ def main():
         with st.spinner("Buscando información en la web…"):
             try:
                 agent = config["langchain_agent"]
-                raw_result = agent.invoke({"input": tema})
+                input_usuario = f"""
+                Quiero que actúes como un investigador experto. Usa herramientas externas disponibles para buscar y analizar información actualizada.
+
+                Tema: "{tema}"
+
+                Devuelve los resultados en el siguiente formato JSON (mínimo 5 entradas):
+                [
+                    {{
+                        "title": "Título del artículo",
+                        "url": "https://...",
+                        "content": "Contenido en español, al menos 4 párrafos con información detallada"
+                    }},
+                    ...
+                ]
+                """
+                raw_result = agent.invoke({"input": input_usuario})
+                print(raw_result)  # Para depuración, puedes eliminarlo después
                 
-                # Verificamos si `raw_result` es una lista de Document o algo similar
-                if isinstance(raw_result, list) and all(hasattr(d, "page_content") for d in raw_result):
-                    respuesta = []
-                    for doc in raw_result:
-                        respuesta.append({
-                            "title": doc.metadata.get("title", "Sin título"),
-                            "url": doc.metadata.get("source", "#"),
-                            "content": doc.page_content
-                        })
-                elif isinstance(raw_result, dict) and "output" in raw_result:
-                    # Si es un dict con "output" (puede que la IA devuelva un texto "encapsulado")
-                    respuesta = [{
-                        "title": "Respuesta",
-                        "url": "#",
-                        "content": raw_result["output"]
-                    }]
-                else:
-                    # Cualquier otro caso: asumimos un string suelto
+                # Intentamos parsear directamente el JSON que devuelve la clave "output" (o raw_result si ya es string)
+                try:
+                    if isinstance(raw_result, dict) and "output" in raw_result:
+                        respuesta = json.loads(limpiar_bloque_json(raw_result["output"]))
+                    else:
+                        respuesta = json.loads(raw_result)
+                    
+                    # Validamos que la respuesta sea una lista de diccionarios
+                    if not isinstance(respuesta, list):
+                        raise ValueError("La respuesta JSON no es una lista")
+                
+                except Exception as e:
+                    st.warning(f"No se pudo parsear el resultado JSON. Se muestra la respuesta en bruto. Error: {e}")
                     respuesta = [{
                         "title": "Respuesta",
                         "url": "#",
                         "content": str(raw_result)
                     }]
-
+                    
             except Exception as e:
                 st.error(f"Ocurrió un error al ejecutar el agente: {e}")
                 return
@@ -91,10 +109,9 @@ def main():
             st.warning("No se encontraron resultados para ese tema.")
             return
 
-        # Mostrar los resultados
+        # Mostrar los resultados (aquí asegúrate de que la función mostrar_resultados espere el formato adecuado)
         st.subheader("Resultados encontrados")
         mostrar_resultados(respuesta)
-
 
         with st.spinner("Generando resumen…"):
             resumen = generar_resumen(respuesta, config=config)
