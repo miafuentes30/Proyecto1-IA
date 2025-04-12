@@ -80,7 +80,7 @@ def main():
                 ]
                 """
                 raw_result = agent.invoke({"input": input_usuario})
-                print(raw_result)  # Para depuración, puedes eliminarlo después
+                print(raw_result) 
                 
                 # Intentamos parsear directamente el JSON que devuelve la clave "output" (o raw_result si ya es string)
                 try:
